@@ -1,5 +1,5 @@
-use structopt::StructOpt;
 use anyhow::{Context, Result};
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 struct Cli {
@@ -13,13 +13,18 @@ fn main() -> Result<()> {
     let content = std::fs::read_to_string(&args.path)
         .with_context(|| format!("could not read file {}", &args.path.display()))?;
 
+    match_line(&content, &args.pattern);
+
+    Ok(())
+}
+
+fn match_line(content: &String, pattern: &String) {
     let mut line_number = 1;
+
     for line in content.lines() {
-        if line.contains(&args.pattern) {
+        if line.contains(pattern) {
             println!("{} {}", line_number, line);
         }
         line_number += 1;
     }
-
-    Ok(())
 }
