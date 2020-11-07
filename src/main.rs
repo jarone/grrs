@@ -1,4 +1,7 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::BufReader;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -10,21 +13,28 @@ struct Cli {
 
 fn main() -> Result<()> {
     let args = Cli::from_args();
-    let content = std::fs::read_to_string(&args.path)
-        .with_context(|| format!("could not read file {}", &args.path.display()))?;
 
-    match_line(&content, &args.pattern);
+    search(&args.path, &args.pattern);
 
     Ok(())
 }
 
-fn match_line(content: &String, pattern: &String) {
-    let mut line_number = 1;
+fn search(path: &std::path::PathBuf, pattern: &String) {
+    let file = File::open(path)
+        .expect(&(String::from("could not open the file: ") + &path.display().to_string()));
+    let file = BufReader::new(file);
 
-    for line in content.lines() {
-        if line.contains(pattern) {
-            println!("{} {}", line_number, line);
-        }
+    match_line(file, pattern);
+}
+
+fn match_line(file: BufReader<File>, pattern: &String) {
+    let mut line_number = 0;
+
+    for line in file.lines() {
+        let line_string = line.unwrap();
         line_number += 1;
+        if line_string.contains(pattern) {
+            println!("{} {}", line_number, line_string);
+        }
     }
 }
