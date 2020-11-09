@@ -1,7 +1,4 @@
-use anyhow::Result;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
+use std::{fs::File, io::prelude::*, io::BufReader};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -11,20 +8,16 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() -> Result<()> {
+fn main() {
     let args = Cli::from_args();
 
-    search(&args.path, &args.pattern);
+    let file = File::open(&args.path);
+    let file = match file {
+        Ok(file) => BufReader::new(file),
+        Err(why) => panic!("could not open file: {}", why),
+    };
 
-    Ok(())
-}
-
-fn search(path: &std::path::PathBuf, pattern: &String) {
-    let file = File::open(path)
-        .expect(&(String::from("could not open the file: ") + &path.display().to_string()));
-    let file = BufReader::new(file);
-
-    match_line(file, pattern);
+    match_line(file, &args.pattern);
 }
 
 fn match_line(file: BufReader<File>, pattern: &String) {
