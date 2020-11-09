@@ -7,6 +7,3 @@ license = "MIT OR Apache-2.0"
 description = "A tool to search files"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-structopt = "0.3.20"
